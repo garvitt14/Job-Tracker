@@ -21,6 +21,9 @@ app.use('/api/jobs', jobsRouter)
 const aiRouter = require('./routes/ai')
 app.use('/api/ai', aiRouter)
 
+const authRouter = require('./routes/auth')
+app.use('/api/auth', authRouter)
+
 app.get('/', (req, res) => {
   res.json({ message: 'Job Tracker API is running!' })
 })

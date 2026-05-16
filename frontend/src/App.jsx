@@ -2,35 +2,88 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import './App.css'
 
-const API = 'http://localhost:4000/api'
+const API = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
 
 function App() {
+  const [token, setToken] = useState(localStorage.getItem('token'))
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user') || 'null'))
+  const [authView, setAuthView] = useState('login')
   const [jobs, setJobs] = useState([])
-  const [view, setView] = useState('board')
   const [showAddForm, setShowAddForm] = useState(false)
   const [showScorer, setShowScorer] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [authLoading, setAuthLoading] = useState(false)
   const [scoreResult, setScoreResult] = useState(null)
+  const [authError, setAuthError] = useState('')
+
+  const [authForm, setAuthForm] = useState({
+    name: '', email: '', password: ''
+  })
 
   const [newJob, setNewJob] = useState({
-    company: '',
-    position: '',
-    status: 'Applied',
-    jobDescription: ''
+    company: '', position: '', status: 'Applied', jobDescription: ''
   })
 
   const [scoreForm, setScoreForm] = useState({
-    resume: '',
-    jobDescription: ''
+    resume: '', jobDescription: ''
   })
 
+  const statuses = ['Applied', 'Interview', 'Offer', 'Rejected']
+  const statusColors = {
+    Applied: '#3b82f6',
+    Interview: '#f59e0b',
+    Offer: '#10b981',
+    Rejected: '#ef4444'
+  }
+
+  // Axios interceptor — adds token to every request automatically
   useEffect(() => {
-    fetchJobs()
+    axios.interceptors.request.use(config => {
+      const t = localStorage.getItem('token')
+      if (t) config.headers.Authorization = `Bearer ${t}`
+      return config
+    })
   }, [])
 
+  useEffect(() => {
+    if (token) fetchJobs()
+  }, [token])
+
   const fetchJobs = async () => {
-    const res = await axios.get(`${API}/jobs`)
-    setJobs(res.data)
+    try {
+      const res = await axios.get(`${API}/jobs`)
+      setJobs(res.data)
+    } catch (err) {
+      if (err.response?.status === 401) logout()
+    }
+  }
+
+  const handleAuth = async () => {
+    setAuthError('')
+    setAuthLoading(true)
+    try {
+      const endpoint = authView === 'login' ? '/auth/login' : '/auth/register'
+      const payload = authView === 'login'
+        ? { email: authForm.email, password: authForm.password }
+        : { name: authForm.name, email: authForm.email, password: authForm.password }
+
+      const res = await axios.post(`${API}${endpoint}`, payload)
+      localStorage.setItem('token', res.data.token)
+      localStorage.setItem('user', JSON.stringify(res.data.user))
+      setToken(res.data.token)
+      setUser(res.data.user)
+    } catch (err) {
+      setAuthError(err.response?.data?.message || 'Something went wrong')
+    }
+    setAuthLoading(false)
+  }
+
+  const logout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    setToken(null)
+    setUser(null)
+    setJobs([])
   }
 
   const addJob = async () => {
@@ -63,31 +116,74 @@ function App() {
     setLoading(false)
   }
 
-  const statuses = ['Applied', 'Interview', 'Offer', 'Rejected']
+  // ── AUTH SCREEN ──────────────────────────────────────────────────────────
+  if (!token) {
+    return (
+      <div className="auth-page">
+        <div className="auth-card">
+          <div className="auth-logo">🎯</div>
+          <h1>Job Tracker</h1>
+          <p className="auth-tagline">Track applications. Score your resume with AI.</p>
 
-  const statusColors = {
-    Applied: '#3b82f6',
-    Interview: '#f59e0b',
-    Offer: '#10b981',
-    Rejected: '#ef4444'
+          <div className="auth-tabs">
+            <button
+              className={authView === 'login' ? 'tab active' : 'tab'}
+              onClick={() => { setAuthView('login'); setAuthError('') }}
+            >Login</button>
+            <button
+              className={authView === 'register' ? 'tab active' : 'tab'}
+              onClick={() => { setAuthView('register'); setAuthError('') }}
+            >Register</button>
+          </div>
+
+          {authView === 'register' && (
+            <input
+              placeholder="Your name"
+              value={authForm.name}
+              onChange={e => setAuthForm({ ...authForm, name: e.target.value })}
+            />
+          )}
+          <input
+            placeholder="Email address"
+            type="email"
+            value={authForm.email}
+            onChange={e => setAuthForm({ ...authForm, email: e.target.value })}
+          />
+          <input
+            placeholder="Password (min 6 characters)"
+            type="password"
+            value={authForm.password}
+            onChange={e => setAuthForm({ ...authForm, password: e.target.value })}
+            onKeyDown={e => e.key === 'Enter' && handleAuth()}
+          />
+
+          {authError && <p className="auth-error">{authError}</p>}
+
+          <button className="btn-primary auth-btn" onClick={handleAuth} disabled={authLoading}>
+            {authLoading ? 'Please wait...' : authView === 'login' ? 'Login' : 'Create Account'}
+          </button>
+        </div>
+      </div>
+    )
   }
 
+  // ── MAIN APP ─────────────────────────────────────────────────────────────
   return (
     <div className="app">
-      {/* Header */}
       <header className="header">
         <h1>🎯 Job Tracker</h1>
         <div className="header-btns">
+          <span className="user-badge">👋 {user?.name}</span>
           <button className="btn-secondary" onClick={() => setShowScorer(!showScorer)}>
             ✨ AI Resume Scorer
           </button>
           <button className="btn-primary" onClick={() => setShowAddForm(!showAddForm)}>
             + Add Job
           </button>
+          <button className="btn-logout" onClick={logout}>Logout</button>
         </div>
       </header>
 
-      {/* Add Job Form */}
       {showAddForm && (
         <div className="modal-overlay">
           <div className="modal">
@@ -122,7 +218,6 @@ function App() {
         </div>
       )}
 
-      {/* AI Scorer */}
       {showScorer && (
         <div className="scorer">
           <h2>✨ AI Resume Scorer</h2>
@@ -174,7 +269,6 @@ function App() {
         </div>
       )}
 
-      {/* Kanban Board */}
       <div className="board">
         {statuses.map(status => (
           <div key={status} className="column">
