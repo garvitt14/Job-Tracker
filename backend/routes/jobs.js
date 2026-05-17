@@ -1,9 +1,10 @@
 const express = require('express')
 const router = express.Router()
 const Job = require('../models/Job')
+const User = require('../models/User')
 const auth = require('../middleware/auth')
+const { sendStatusEmail } = require('../utils/emailService')
 
-// All routes below require auth token
 router.get('/', auth, async (req, res) => {
   try {
     const jobs = await Job.find({ userId: req.user.id })
@@ -37,13 +38,28 @@ router.put('/:id', auth, async (req, res) => {
       { new: true }
     )
     if (!job) return res.status(404).json({ message: 'Job not found' })
+
+    if (req.body.status === 'Interview' || req.body.status === 'Offer') {
+      try {
+        const user = await User.findById(req.user.id)
+        await sendStatusEmail(user.email, {
+          position: job.position,
+          company: job.company,
+          status: job.status
+        })
+        console.log(`Email sent to ${user.email} for ${job.status}`)
+      } catch (emailErr) {
+        console.log('Email failed:', emailErr.message)
+      }
+    }
+
     res.json(job)
   } catch (err) {
     res.status(500).json({ message: err.message })
   }
 })
 
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const job = await Job.findOneAndDelete({
       _id: req.params.id,

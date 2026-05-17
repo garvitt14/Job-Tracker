@@ -342,3 +342,73 @@
 .btn-logout:hover {
   background: #ef444420;
 }
+.analytics {
+  padding: 8px 0;
+}
+
+.analytics-empty {
+  text-align: center;
+  color: #64748b;
+  padding: 60px 0;
+  font-size: 15px;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.metric-label {
+  font-size: 12px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.metric-value {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.metric-value.blue { color: #3b82f6; }
+.metric-value.yellow { color: #f59e0b; }
+.metric-value.green { color: #10b981; }
+.metric-value.purple { color: #8b5cf6; }
+.metric-value.teal { color: #06b6d4; }
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.chart-card {
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.chart-card h3 {
+  font-size: 14px;
+  color: #94a3b8;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.chart-empty {
+  color: #475569;
+  font-size: 13px;
+  text-align: center;
+  padding: 60px 20px;
+}
