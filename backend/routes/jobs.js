@@ -40,17 +40,15 @@ router.put('/:id', auth, async (req, res) => {
     if (!job) return res.status(404).json({ message: 'Job not found' })
 
     if (req.body.status === 'Interview' || req.body.status === 'Offer') {
-      try {
-        const user = await User.findById(req.user.id)
-        await sendStatusEmail(user.email, {
+      User.findById(req.user.id).then(user => {
+        sendStatusEmail(user.email, {
           position: job.position,
           company: job.company,
           status: job.status
         })
-        console.log(`Email sent to ${user.email} for ${job.status}`)
-      } catch (emailErr) {
-        console.log('Email failed:', emailErr.message)
-      }
+          .then(() => console.log(`Email sent to ${user.email} for ${job.status}`))
+          .catch(emailErr => console.log('Email failed:', emailErr.message))
+      })
     }
 
     res.json(job)
