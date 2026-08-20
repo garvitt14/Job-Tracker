@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Little World 💖</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:'Quicksand',sans-serif;
+background:linear-gradient(135deg,#ffd6e7,#ffeef6);
+min-height:100vh;
+overflow-x:hidden;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:20px;
+}
+
+.card{
+background:white;
+width:100%;
+max-width:500px;
+border-radius:25px;
+padding:30px;
+text-align:center;
+box-shadow:0 10px 30px rgba(0,0,0,0.15);
+position:relative;
+}
+
+h1,h2{
+font-family:'Caveat',cursive;
+color:#ff4f8b;
+}
+
+.page{
+display:none;
+animation:fade .5s ease;
+}
+
+.page.active{
+display:block;
+}
+
+button{
+background:#ff6fa8;
+color:white;
+border:none;
+padding:12px 20px;
+border-radius:12px;
+margin-top:20px;
+cursor:pointer;
+font-size:16px;
+}
+
+button:hover{
+transform:scale(1.05);
+}
+
+.coupon{
+background:#fff4f8;
+border:2px dashed #ff8fb8;
+padding:15px;
+border-radius:15px;
+margin:10px 0;
+cursor:pointer;
+}
+
+.reason{
+font-size:22px;
+margin-top:20px;
+color:#555;
+}
+
+.love-meter{
+font-size:40px;
+font-weight:bold;
+color:#ff4f8b;
+margin-top:20px;
+}
+
+.heart{
+position:fixed;
+font-size:24px;
+animation:float 6s linear infinite;
+pointer-events:none;
+}
+
+@keyframes fade{
+from{opacity:0;transform:translateY(15px);}
+to{opacity:1;transform:translateY(0);}
+}
+
+@keyframes float{
+0%{
+transform:translateY(100vh);
+opacity:0;
+}
+20%{
+opacity:1;
+}
+100%{
+transform:translateY(-120vh);
+opacity:0;
+}
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+
+<div class="page active">
+<h1>💖 Our Little World 💖</h1>
+<p style="margin-top:15px">
+A tiny place made with love.
+</p>
+<button onclick="nextPage()">Enter ❤️</button>
+</div>
+
+<div class="page">
+<h2>💌 Welcome Letter</h2>
+<p style="margin-top:20px">
+Hey Beautiful,<br><br>
+I made this little website because some feelings deserve more than a text message.
+</p>
+<button onclick="nextPage()">Next →</button>
+</div>
+
+<div class="page">
+<h2>🎟️ Love Coupons</h2>
+
+<div class="coupon" onclick="redeem(this)">
+🤗 Unlimited Hugs
+</div>
+
+<div class="coupon" onclick="redeem(this)">
+🍕 One Food Date
+</div>
+
+<div class="coupon" onclick="redeem(this)">
+🎬 Movie Night
+</div>
+
+<div class="coupon" onclick="redeem(this)">
+☕ Coffee Treat
+</div>
+
+<button onclick="nextPage()">Next →</button>
+</div>
+
+<div class="page">
+<h2>🌸 Reasons I Like You</h2>
+
+<div class="reason" id="reason">
+Click below ❤️
+</div>
+
+<button onclick="showReason()">
+Reveal Reason
+</button>
+
+<br>
+
+<button onclick="nextPage()">
+Next →
+</button>
+</div>
+
+<div class="page">
+<h2>❤️ Love Meter</h2>
+
+<div class="love-meter" id="meter">
+0%
+</div>
+
+<button onclick="calculateLove()">
+Calculate
+</button>
+
+<br>
+
+<button onclick="nextPage()">
+Next →
+</button>
+</div>
+
+<div class="page">
+<h2>🌙 Final Message</h2>
+
+<p style="margin-top:20px">
+Thank you for visiting our little world.<br><br>
+I hope this made you smile today. 💖
+</p>
+
+<button onclick="location.reload()">
+Restart
+</button>
+</div>
+
+</div>
+
+<script>
+
+let current=0;
+const pages=document.querySelectorAll('.page');
+
+function nextPage(){
+pages[current].classList.remove('active');
+current++;
+pages[current].classList.add('active');
+}
+
+function redeem(el){
+el.innerHTML+=" ✅ Redeemed";
+el.style.background="#e7ffe7";
+}
+
+const reasons=[
+"Your smile brightens everything.",
+"You make ordinary days special.",
+"You always stay in my thoughts.",
+"You're my favorite person.",
+"You make life more fun."
+];
+
+function showReason(){
+const random=Math.floor(Math.random()*reasons.length);
+document.getElementById("reason").innerText=reasons[random];
+}
+
+function calculateLove(){
+
+let value=0;
+
+const interval=setInterval(()=>{
+
+value+=5;
+
+document.getElementById("meter").innerText=value+"%";
+
+if(value>=100){
+clearInterval(interval);
+document.getElementById("meter").innerText="1000000% ❤️";
+}
+
+},50);
+
+}
+
+function createHeart(){
+
+const heart=document.createElement('div');
+
+heart.className='heart';
+heart.innerHTML='💖';
+
+heart.style.left=Math.random()*100+'vw';
+
+heart.style.fontSize=(20+Math.random()*20)+'px';
+
+document.body.appendChild(heart);
+
+setTimeout(()=>{
+heart.remove();
+},6000);
+
+}
+
+setInterval(createHeart,700);
+
+</script>
+
+</body>
+</html>

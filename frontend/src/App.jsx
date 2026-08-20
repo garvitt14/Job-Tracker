@@ -20,6 +20,7 @@ function App() {
   const [authForm, setAuthForm] = useState({ name: '', email: '', password: '' })
   const [newJob, setNewJob] = useState({ company: '', position: '', status: 'Applied', jobDescription: '' })
   const [scoreForm, setScoreForm] = useState({ resume: '', jobDescription: '' })
+  const [resumeFile, setResumeFile] = useState(null) // holds the actual File object selected by the user
 
   const statuses = ['Applied', 'Interview', 'Offer', 'Rejected']
   const statusColors = { Applied: '#3b82f6', Interview: '#f59e0b', Offer: '#10b981', Rejected: '#ef4444' }
@@ -91,13 +92,23 @@ function App() {
   }
 
   const scoreResume = async () => {
-    if (!scoreForm.resume || !scoreForm.jobDescription) return
+    if (!resumeFile || !scoreForm.jobDescription) return
     setLoading(true)
     try {
-      const res = await axios.post(`${API}/ai/score`, scoreForm)
+      // FormData lets us send a real file (binary data) plus text fields
+      // in one request - JSON can only carry text/numbers, not files.
+      // The key 'resumeFile' here MUST match upload.single('resumeFile')
+      // on the backend route, or multer won't find the file.
+      const formData = new FormData()
+      formData.append('resumeFile', resumeFile)
+      formData.append('jobDescription', scoreForm.jobDescription)
+
+      const res = await axios.post(`${API}/ai/score-file`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
       setScoreResult(res.data)
     } catch (err) {
-      alert('AI scoring failed')
+      alert(err.response?.data?.message || 'AI scoring failed')
     }
     setLoading(false)
   }
@@ -164,10 +175,25 @@ function App() {
           <h2>✨ AI Resume Scorer</h2>
           <p>Paste your resume and job description to get an AI match score</p>
           <div className="scorer-grid">
-            <textarea placeholder="Paste your resume here..." value={scoreForm.resume} onChange={e => setScoreForm({ ...scoreForm, resume: e.target.value })} rows={10} />
+            <div className="resume-upload">
+              <input
+                type="file"
+                id="resumeFile"
+                accept=".pdf,.docx"
+                onChange={e => setResumeFile(e.target.files[0] || null)}
+                style={{ display: 'none' }}
+              />
+              <label htmlFor="resumeFile" className="resume-upload-label">
+                {resumeFile ? (
+                  <>📄 {resumeFile.name} <span className="resume-upload-change">(click to change)</span></>
+                ) : (
+                  <>📤 Click to upload your resume <span className="resume-upload-hint">PDF or DOCX, max 5MB</span></>
+                )}
+              </label>
+            </div>
             <textarea placeholder="Paste job description here..." value={scoreForm.jobDescription} onChange={e => setScoreForm({ ...scoreForm, jobDescription: e.target.value })} rows={10} />
           </div>
-          <button className="btn-primary" onClick={scoreResume} disabled={loading}>
+          <button className="btn-primary" onClick={scoreResume} disabled={loading || !resumeFile}>
             {loading ? 'Analyzing...' : '🔍 Analyze Match'}
           </button>
           {scoreResult && (
