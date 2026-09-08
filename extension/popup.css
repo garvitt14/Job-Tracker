@@ -1,0 +1,60 @@
+:root {
+  color: #182033;
+  background: #f6f7fb;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+}
+
+* { box-sizing: border-box; }
+body { width: 380px; min-height: 530px; margin: 0; background: #f6f7fb; }
+button, input, textarea { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .58; }
+.hidden { display: none !important; }
+
+.header { height: 68px; padding: 0 16px; border-bottom: 1px solid #e4e7ef; display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,.92); }
+.brand-mark { width: 35px; height: 35px; border-radius: 11px; display: flex; align-items: center; justify-content: center; color: white; background: linear-gradient(145deg,#818cf8,#4f46e5); box-shadow: 0 7px 16px rgba(79,70,229,.24); }
+.brand-mark svg { width: 21px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.header > div:nth-child(2) { min-width: 0; display: flex; flex: 1; flex-direction: column; }
+.header strong { font-size: 13px; letter-spacing: -.02em; }
+.header span { margin-top: 1px; color: #8790a4; font-size: 9px; }
+.icon-button { width: 32px; height: 32px; border: 1px solid #e4e7ef; border-radius: 9px; color: #6b7488; background: white; font-weight: 800; letter-spacing: 1px; }
+.icon-button:hover { background: #f0f1f6; }
+
+main { position: relative; padding: 15px; }
+.settings-panel { margin-bottom: 13px; padding: 13px; border: 1px solid #dfe2ec; border-radius: 11px; background: white; box-shadow: 0 6px 18px rgba(28,35,50,.06); }
+.settings-panel p { margin: 6px 0 10px; color: #8790a4; font-size: 8px; line-height: 1.5; }
+.settings-panel code { color: #5b5ed8; }
+
+label { display: flex; flex-direction: column; gap: 6px; }
+label > span { color: #5d6679; font-size: 9px; font-weight: 700; }
+input, textarea { width: 100%; border: 1px solid #dfe2ec; border-radius: 9px; outline: none; color: #182033; background: #f8f9fc; font-size: 11px; transition: border .15s, box-shadow .15s, background .15s; }
+input { height: 39px; padding: 0 11px; }
+textarea { min-height: 150px; padding: 10px 11px; line-height: 1.5; resize: vertical; }
+input:focus, textarea:focus { border-color: #777af0; background: white; box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
+input::placeholder, textarea::placeholder { color: #9da4b5; }
+
+.primary-button, .secondary-button { min-height: 40px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-size: 10.5px; font-weight: 750; }
+.primary-button { color: white; border: 1px solid #5558df; background: linear-gradient(145deg,#6d70f5,#5357df); box-shadow: 0 6px 15px rgba(79,70,229,.2); }
+.primary-button:hover { background: #4f46e5; }
+.primary-button svg { width: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.secondary-button { padding: 7px 11px; color: #596174; border: 1px solid #dfe2ec; background: #f8f9fc; }
+
+.login-view { min-height: 410px; padding: 25px 12px 10px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.login-icon { width: 55px; height: 55px; margin-bottom: 13px; border: 1px solid #dddffd; border-radius: 17px; display: flex; align-items: center; justify-content: center; color: #6366f1; background: #eef2ff; }
+.login-icon svg { width: 27px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.login-view h1 { margin: 0; font-size: 18px; letter-spacing: -.035em; }
+.login-view > p { max-width: 280px; margin: 7px 0 18px; color: #747e92; font-size: 9.5px; line-height: 1.55; }
+.login-view form { width: 100%; display: flex; flex-direction: column; gap: 11px; text-align: left; }
+.login-view form button { width: 100%; margin-top: 2px; }
+
+.job-view { display: flex; flex-direction: column; gap: 11px; }
+.source-badge { width: fit-content; padding: 5px 8px; border: 1px solid #dfe2ec; border-radius: 7px; color: #5d6679; background: white; font-size: 8px; font-weight: 700; }
+.source-badge::before { content: ''; width: 5px; height: 5px; margin-right: 5px; border-radius: 50%; display: inline-block; background: #10b981; }
+.notice { padding: 9px 10px; border: 1px solid #fde4a8; border-radius: 8px; color: #9a6204; background: #fffbeb; font-size: 8.5px; line-height: 1.45; }
+.job-view form { display: flex; flex-direction: column; gap: 10px; }
+.job-view footer { padding-top: 10px; border-top: 1px solid #e4e7ef; display: flex; align-items: center; justify-content: space-between; color: #8c94a7; font-size: 8px; }
+.job-view footer button { padding: 0; border: 0; color: #dc2626; background: none; font-size: 8px; font-weight: 700; }
+
+.status { position: fixed; z-index: 10; left: 15px; right: 15px; bottom: 13px; min-height: 39px; padding: 10px 12px; border: 1px solid #b9ead7; border-radius: 10px; color: #047857; background: #ecfdf5; box-shadow: 0 12px 28px rgba(28,35,50,.17); font-size: 9px; font-weight: 650; line-height: 1.4; }
+.status-error { color: #b91c1c; border-color: #fecaca; background: #fef2f2; }
