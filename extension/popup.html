@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Save to Job Tracker</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
+      </div>
+      <div><strong>Job Tracker</strong><span>Save this opportunity</span></div>
+      <button id="settingsButton" class="icon-button" type="button" aria-label="API settings" title="API settings">•••</button>
+    </header>
+
+    <main>
+      <section id="settingsPanel" class="settings-panel hidden">
+        <label><span>Tracker API URL</span><input id="apiUrl" type="url" placeholder="https://your-api.onrender.com/api" /></label>
+        <p>Use your deployed Render backend URL ending in <code>/api</code>.</p>
+        <button id="saveSettings" class="secondary-button" type="button">Save API settings</button>
+      </section>
+
+      <section id="loginView" class="login-view hidden">
+        <div class="login-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 3 4 7v5c0 5 3.4 8 8 9 4.6-1 8-4 8-9V7l-8-4Z"/><path d="m9 12 2 2 4-5"/></svg>
+        </div>
+        <h1>Connect your tracker</h1>
+        <p>Sign in once to store a short-lived tracker token securely in Chrome.</p>
+        <form id="loginForm">
+          <label><span>Email</span><input id="email" type="email" autocomplete="email" required placeholder="you@example.com" /></label>
+          <label><span>Password</span><input id="password" type="password" autocomplete="current-password" required minlength="6" placeholder="Your password" /></label>
+          <button class="primary-button" type="submit">Connect tracker</button>
+        </form>
+      </section>
+
+      <section id="jobView" class="job-view hidden">
+        <div id="sourceBadge" class="source-badge">Reading this page…</div>
+        <div id="extractionNotice" class="notice hidden"></div>
+        <form id="jobForm">
+          <label><span>Job title</span><input id="position" required placeholder="Confirm job title" /></label>
+          <label><span>Company</span><input id="company" required placeholder="Confirm company" /></label>
+          <label><span>Job description</span><textarea id="jobDescription" required rows="9" placeholder="Confirm or paste the job description"></textarea></label>
+          <button id="saveJob" class="primary-button" type="submit">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            Save to Tracker
+          </button>
+        </form>
+        <footer><span id="accountLabel"></span><button id="logoutButton" type="button">Disconnect</button></footer>
+      </section>
+
+      <div id="status" class="status hidden" role="status"></div>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>
