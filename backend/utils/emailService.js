@@ -1,23 +1,10 @@
 const { Resend } = require('resend')
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const EMAIL_FROM = process.env.EMAIL_FROM || 'Job Tracker <onboarding@resend.dev>'
-
-const sendWithResend = async (payload) => {
-  const result = await resend.emails.send(payload)
-  if (result.error) throw new Error(result.error.message || 'Resend rejected the email')
-  return result.data
-}
-
-const escapeHtml = (value = '') => String(value)
-  .replaceAll('&', '&amp;')
-  .replaceAll('<', '&lt;')
-  .replaceAll('>', '&gt;')
-  .replaceAll('"', '&quot;')
-  .replaceAll("'", '&#039;')
 
 const sendStatusEmail = async (to, jobDetails) => {
   const { position, company, status } = jobDetails
+
   const statusMessages = {
     Interview: {
       subject: `Interview scheduled — ${position} at ${company}`,
@@ -38,8 +25,6 @@ const sendStatusEmail = async (to, jobDetails) => {
   const template = statusMessages[status]
   if (!template) return
 
-  const safePosition = escapeHtml(position)
-  const safeCompany = escapeHtml(company)
   const html = `
     <!DOCTYPE html>
     <html>
@@ -52,41 +37,34 @@ const sendStatusEmail = async (to, jobDetails) => {
         <div style="padding:32px;">
           <p style="color:#94a3b8;font-size:15px;margin:0 0 24px 0;">${template.message}</p>
           <div style="background:#0f172a;border-radius:12px;padding:20px;margin-bottom:24px;">
-            <div style="margin-bottom:12px;"><span style="color:#64748b;font-size:12px;text-transform:uppercase;">Position</span><p style="color:#e2e8f0;font-size:16px;font-weight:600;margin:4px 0 0 0;">${safePosition}</p></div>
-            <div style="margin-bottom:12px;"><span style="color:#64748b;font-size:12px;text-transform:uppercase;">Company</span><p style="color:#e2e8f0;font-size:16px;font-weight:600;margin:4px 0 0 0;">${safeCompany}</p></div>
-            <div><span style="color:#64748b;font-size:12px;text-transform:uppercase;">Status</span><p style="color:${template.color};font-size:16px;font-weight:600;margin:4px 0 0 0;">${status}</p></div>
+            <div style="margin-bottom:12px;">
+              <span style="color:#64748b;font-size:12px;text-transform:uppercase;">Position</span>
+              <p style="color:#e2e8f0;font-size:16px;font-weight:600;margin:4px 0 0 0;">${position}</p>
+            </div>
+            <div style="margin-bottom:12px;">
+              <span style="color:#64748b;font-size:12px;text-transform:uppercase;">Company</span>
+              <p style="color:#e2e8f0;font-size:16px;font-weight:600;margin:4px 0 0 0;">${company}</p>
+            </div>
+            <div>
+              <span style="color:#64748b;font-size:12px;text-transform:uppercase;">Status</span>
+              <p style="color:${template.color};font-size:16px;font-weight:600;margin:4px 0 0 0;">${status}</p>
+            </div>
           </div>
-          <div style="background:#1e3a5f;border-radius:8px;padding:16px;"><p style="color:#93c5fd;font-size:13px;margin:0;"><strong>Tip:</strong> ${template.tip}</p></div>
+          <div style="background:#1e3a5f;border-radius:8px;padding:16px;">
+            <p style="color:#93c5fd;font-size:13px;margin:0;"><strong>Tip:</strong> ${template.tip}</p>
+          </div>
         </div>
       </div>
     </body>
     </html>
   `
 
-  await sendWithResend({ from: EMAIL_FROM, to, subject: template.subject, html })
-}
-
-const sendFollowUpEmail = async (to, { subject, body }) => {
-  const safeBody = escapeHtml(body).replaceAll('\n', '<br />')
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <body style="margin:0;padding:24px;background:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1e293b;">
-        <div style="max-width:620px;margin:0 auto;background:white;border:1px solid #e2e8f0;border-radius:12px;padding:32px;line-height:1.65;font-size:15px;">
-          ${safeBody}
-          <div style="margin-top:30px;padding-top:16px;border-top:1px solid #e2e8f0;color:#94a3b8;font-size:11px;">Sent with Job Tracker</div>
-        </div>
-      </body>
-    </html>
-  `
-
-  await sendWithResend({
-    from: EMAIL_FROM,
+  await resend.emails.send({
+    from: 'Job Tracker <onboarding@resend.dev>',
     to,
-    subject,
-    text: body,
+    subject: template.subject,
     html
   })
 }
 
-module.exports = { sendStatusEmail, sendFollowUpEmail }
+module.exports = { sendStatusEmail }

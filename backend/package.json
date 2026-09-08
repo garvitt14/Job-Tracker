@@ -1,14 +1,12 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "Job Tracker API",
-  "main": "server.js",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
-    "check": "node --check server.js && node --check routes/ai.js && node --check routes/jobs.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["job-tracker", "mern", "groq"],
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
