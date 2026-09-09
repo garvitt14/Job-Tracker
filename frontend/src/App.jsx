@@ -1,4 +1,5 @@
 import Analytics from './Analytics'
+import KanbanBoard from './KanbanBoard'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import './App.css'
@@ -19,11 +20,11 @@ function App() {
   const [authError, setAuthError] = useState('')
   const [authForm, setAuthForm] = useState({ name: '', email: '', password: '' })
   const [newJob, setNewJob] = useState({ company: '', position: '', status: 'Applied', jobDescription: '' })
+  const [addJobError, setAddJobError] = useState('')
   const [scoreForm, setScoreForm] = useState({ resume: '', jobDescription: '' })
-  const [resumeFile, setResumeFile] = useState(null) // holds the actual File object selected by the user
 
   const statuses = ['Applied', 'Interview', 'Offer', 'Rejected']
-  const statusColors = { Applied: '#3b82f6', Interview: '#f59e0b', Offer: '#10b981', Rejected: '#ef4444' }
+  const statusColors = { Applied: '#5B6472', Interview: '#B08D57', Offer: '#1F6F5C', Rejected: '#A23B2E' }
 
   useEffect(() => {
     axios.interceptors.request.use(config => {
@@ -74,41 +75,48 @@ function App() {
   }
 
   const addJob = async () => {
-    if (!newJob.company || !newJob.position) return
-    await axios.post(`${API}/jobs`, newJob)
-    setNewJob({ company: '', position: '', status: 'Applied', jobDescription: '' })
-    setShowAddForm(false)
-    fetchJobs()
+    setAddJobError('')
+    if (!newJob.company || !newJob.position) {
+      setAddJobError('Company and position are both required.')
+      return
+    }
+    try {
+      await axios.post(`${API}/jobs`, newJob)
+      setNewJob({ company: '', position: '', status: 'Applied', jobDescription: '' })
+      setShowAddForm(false)
+      fetchJobs()
+    } catch (err) {
+      setAddJobError(err.response?.data?.message || 'Could not add this job — check your connection and try again.')
+    }
   }
 
   const updateStatus = async (id, status) => {
-    await axios.put(`${API}/jobs/${id}`, { status })
-    fetchJobs()
+    const prevJobs = jobs
+    setJobs(jobs.map(j => j._id === id ? { ...j, status } : j))
+    try {
+      await axios.put(`${API}/jobs/${id}`, { status })
+    } catch (err) {
+      setJobs(prevJobs)
+    }
   }
 
   const deleteJob = async (id) => {
-    await axios.delete(`${API}/jobs/${id}`)
-    fetchJobs()
+    try {
+      await axios.delete(`${API}/jobs/${id}`)
+      fetchJobs()
+    } catch (err) {
+      alert(err.response?.data?.message || 'Could not delete this job — check your connection and try again.')
+    }
   }
 
   const scoreResume = async () => {
-    if (!resumeFile || !scoreForm.jobDescription) return
+    if (!scoreForm.resume || !scoreForm.jobDescription) return
     setLoading(true)
     try {
-      // FormData lets us send a real file (binary data) plus text fields
-      // in one request - JSON can only carry text/numbers, not files.
-      // The key 'resumeFile' here MUST match upload.single('resumeFile')
-      // on the backend route, or multer won't find the file.
-      const formData = new FormData()
-      formData.append('resumeFile', resumeFile)
-      formData.append('jobDescription', scoreForm.jobDescription)
-
-      const res = await axios.post(`${API}/ai/score-file`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      })
+      const res = await axios.post(`${API}/ai/score`, scoreForm)
       setScoreResult(res.data)
     } catch (err) {
-      alert(err.response?.data?.message || 'AI scoring failed')
+      alert('AI scoring failed')
     }
     setLoading(false)
   }
@@ -162,8 +170,9 @@ function App() {
               {statuses.map(s => <option key={s}>{s}</option>)}
             </select>
             <textarea placeholder="Job description (optional)" value={newJob.jobDescription} onChange={e => setNewJob({ ...newJob, jobDescription: e.target.value })} rows={4} />
+            {addJobError && <p className="auth-error">{addJobError}</p>}
             <div className="modal-btns">
-              <button className="btn-secondary" onClick={() => setShowAddForm(false)}>Cancel</button>
+              <button className="btn-secondary" onClick={() => { setShowAddForm(false); setAddJobError('') }}>Cancel</button>
               <button className="btn-primary" onClick={addJob}>Add Job</button>
             </div>
           </div>
@@ -175,31 +184,16 @@ function App() {
           <h2>✨ AI Resume Scorer</h2>
           <p>Paste your resume and job description to get an AI match score</p>
           <div className="scorer-grid">
-            <div className="resume-upload">
-              <input
-                type="file"
-                id="resumeFile"
-                accept=".pdf,.docx"
-                onChange={e => setResumeFile(e.target.files[0] || null)}
-                style={{ display: 'none' }}
-              />
-              <label htmlFor="resumeFile" className="resume-upload-label">
-                {resumeFile ? (
-                  <>📄 {resumeFile.name} <span className="resume-upload-change">(click to change)</span></>
-                ) : (
-                  <>📤 Click to upload your resume <span className="resume-upload-hint">PDF or DOCX, max 5MB</span></>
-                )}
-              </label>
-            </div>
+            <textarea placeholder="Paste your resume here..." value={scoreForm.resume} onChange={e => setScoreForm({ ...scoreForm, resume: e.target.value })} rows={10} />
             <textarea placeholder="Paste job description here..." value={scoreForm.jobDescription} onChange={e => setScoreForm({ ...scoreForm, jobDescription: e.target.value })} rows={10} />
           </div>
-          <button className="btn-primary" onClick={scoreResume} disabled={loading || !resumeFile}>
+          <button className="btn-primary" onClick={scoreResume} disabled={loading}>
             {loading ? 'Analyzing...' : '🔍 Analyze Match'}
           </button>
           {scoreResult && (
             <div className="score-result">
               <div className="score-header">
-                <div className="score-circle" style={{ borderColor: scoreResult.score >= 70 ? '#10b981' : scoreResult.score >= 50 ? '#f59e0b' : '#ef4444' }}>
+                <div className="score-circle" style={{ borderColor: scoreResult.score >= 70 ? '#1F6F5C' : scoreResult.score >= 50 ? '#B08D57' : '#A23B2E' }}>
                   <span className="score-num">{scoreResult.score}</span>
                   <span className="score-label">/ 100</span>
                 </div>
@@ -226,31 +220,13 @@ function App() {
       {view === 'analytics' ? (
         <Analytics jobs={jobs} />
       ) : (
-        <div className="board">
-          {statuses.map(status => (
-            <div key={status} className="column">
-              <div className="column-header" style={{ borderColor: statusColors[status] }}>
-                <span>{status}</span>
-                <span className="count">{jobs.filter(j => j.status === status).length}</span>
-              </div>
-              <div className="cards">
-                {jobs.filter(j => j.status === status).map(job => (
-                  <div key={job._id} className="card">
-                    <div className="card-top">
-                      <h3>{job.position}</h3>
-                      <button className="delete-btn" onClick={() => deleteJob(job._id)}>×</button>
-                    </div>
-                    <p className="company">{job.company}</p>
-                    <p className="date">{new Date(job.appliedDate).toLocaleDateString()}</p>
-                    <select value={job.status} onChange={e => updateStatus(job._id, e.target.value)} style={{ borderColor: statusColors[job.status] }}>
-                      {statuses.map(s => <option key={s}>{s}</option>)}
-                    </select>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
+        <KanbanBoard
+          jobs={jobs}
+          statuses={statuses}
+          statusColors={statusColors}
+          onStatusChange={updateStatus}
+          onDelete={deleteJob}
+        />
       )}
     </div>
   )

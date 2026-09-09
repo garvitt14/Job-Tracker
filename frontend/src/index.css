@@ -1,3 +1,34 @@
+/* ---- The Ledger: design tokens ---- */
+:root {
+  /* light theme (primary) */
+  --paper: #F7F7F3;
+  --surface: #FCFBF8;
+  --ink: #1B2430;
+  --ink-soft: #5B6472;
+  --line: #D8D3C4;
+  --accent: #1F6F5C;
+  --accent-strong: #175646;
+  --mark: #A23B2E;
+  --highlight: #B08D57;
+
+  --font-display: 'Fraunces Variable', 'Georgia', serif;
+  --font-body: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+}
+
+/* dark theme tokens — same relationships, not yet wired to a toggle */
+:root.dark {
+  --paper: #14181D;
+  --surface: #1A1F26;
+  --ink: #ECEAE6;
+  --ink-soft: #9AA3AE;
+  --line: #2B323B;
+  --accent: #2E9C82;
+  --accent-strong: #3FB899;
+  --mark: #C0503F;
+  --highlight: #C79C63;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -5,12 +36,13 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: #0f172a;
-  color: #e2e8f0;
+  font-family: var(--font-body);
+  background: var(--paper);
+  color: var(--ink);
   min-height: 100vh;
 }
 
 button {
   cursor: pointer;
+  font-family: var(--font-body);
 }

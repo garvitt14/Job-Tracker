@@ -5,11 +5,15 @@ import {
 } from 'recharts'
 
 const COLORS = {
-  Applied: '#3b82f6',
-  Interview: '#f59e0b',
-  Offer: '#10b981',
-  Rejected: '#ef4444'
+  Applied: '#5B6472',
+  Interview: '#B08D57',
+  Offer: '#1F6F5C',
+  Rejected: '#A23B2E'
 }
+
+const TOOLTIP_STYLE = { background: '#FCFBF8', border: '1px solid #D8D3C4', borderRadius: '4px' }
+const TOOLTIP_LABEL_STYLE = { color: '#1B2430' }
+const TICK_STYLE = { fill: '#5B6472', fontSize: 11 }
 
 export default function Analytics({ jobs }) {
   // Status breakdown data for pie chart
@@ -109,12 +113,9 @@ export default function Analytics({ jobs }) {
                   <Cell key={entry.name} fill={COLORS[entry.name]} />
                 ))}
               </Pie>
-              <Tooltip
-                contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '8px' }}
-                labelStyle={{ color: '#e2e8f0' }}
-              />
+              <Tooltip contentStyle={TOOLTIP_STYLE} labelStyle={TOOLTIP_LABEL_STYLE} />
               <Legend
-                formatter={(value) => <span style={{ color: '#94a3b8', fontSize: '12px' }}>{value}</span>}
+                formatter={(value) => <span style={{ color: '#5B6472', fontSize: '12px' }}>{value}</span>}
               />
             </PieChart>
           </ResponsiveContainer>
@@ -126,14 +127,11 @@ export default function Analytics({ jobs }) {
           {weeklyData().length > 1 ? (
             <ResponsiveContainer width="100%" height={220}>
               <LineChart data={weeklyData()}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                <XAxis dataKey="week" tick={{ fill: '#94a3b8', fontSize: 11 }} />
-                <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} allowDecimals={false} />
-                <Tooltip
-                  contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '8px' }}
-                  labelStyle={{ color: '#e2e8f0' }}
-                />
-                <Line type="monotone" dataKey="applications" stroke="#3b82f6" strokeWidth={2} dot={{ fill: '#3b82f6' }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#D8D3C4" />
+                <XAxis dataKey="week" tick={TICK_STYLE} />
+                <YAxis tick={TICK_STYLE} allowDecimals={false} />
+                <Tooltip contentStyle={TOOLTIP_STYLE} labelStyle={TOOLTIP_LABEL_STYLE} />
+                <Line type="monotone" dataKey="applications" stroke="#1F6F5C" strokeWidth={2} dot={{ fill: '#1F6F5C' }} />
               </LineChart>
             </ResponsiveContainer>
           ) : (
@@ -147,13 +145,10 @@ export default function Analytics({ jobs }) {
           {companyData().length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={companyData()} layout="vertical">
-                <XAxis type="number" tick={{ fill: '#94a3b8', fontSize: 11 }} allowDecimals={false} />
-                <YAxis type="category" dataKey="company" tick={{ fill: '#94a3b8', fontSize: 11 }} width={80} />
-                <Tooltip
-                  contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '8px' }}
-                  labelStyle={{ color: '#e2e8f0' }}
-                />
-                <Bar dataKey="count" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+                <XAxis type="number" tick={TICK_STYLE} allowDecimals={false} />
+                <YAxis type="category" dataKey="company" tick={TICK_STYLE} width={80} />
+                <Tooltip contentStyle={TOOLTIP_STYLE} labelStyle={TOOLTIP_LABEL_STYLE} />
+                <Bar dataKey="count" fill="#1F6F5C" radius={[0, 2, 2, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -172,13 +167,10 @@ export default function Analytics({ jobs }) {
                 { range: '61-80', count: jobs.filter(j => j.resumeScore > 60 && j.resumeScore <= 80).length },
                 { range: '81-100', count: jobs.filter(j => j.resumeScore > 80).length },
               ]}>
-                <XAxis dataKey="range" tick={{ fill: '#94a3b8', fontSize: 11 }} />
-                <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} allowDecimals={false} />
-                <Tooltip
-                  contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '8px' }}
-                  labelStyle={{ color: '#e2e8f0' }}
-                />
-                <Bar dataKey="count" fill="#10b981" radius={[4, 4, 0, 0]} />
+                <XAxis dataKey="range" tick={TICK_STYLE} />
+                <YAxis tick={TICK_STYLE} allowDecimals={false} />
+                <Tooltip contentStyle={TOOLTIP_STYLE} labelStyle={TOOLTIP_LABEL_STYLE} />
+                <Bar dataKey="count" fill="#B08D57" radius={[2, 2, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
